@@ -6,11 +6,11 @@ function game:init()
     x = 0,
     y = 0,
     angle = 0,
+    direction = 1
   }
 
   self.map = {}
---[[
-  self.size = 25
+  self.size = 1
   for x=-self.size,self.size do
     self.map[x] = {}
     for y=-self.size,self.size do
@@ -18,11 +18,11 @@ function game:init()
       self.map[x][y].wall = false
     end
   end
---]]
 
   isomaplib.load_map(self.map)
 
   self.img = love.graphics.newImage("assets/tile.png")
+
   self.wall_t_1 = love.graphics.newImage("assets/wall_T_section1.png")
   self.wall_t_2 = love.graphics.newImage("assets/wall_T_section2.png")
   self.wall_t_3 = love.graphics.newImage("assets/wall_T_section3.png")
@@ -38,7 +38,10 @@ function game:init()
   self.wall_straight_1 = love.graphics.newImage("assets/wall_straight1.png")
   self.wall_straight_2 = love.graphics.newImage("assets/wall_straight2.png")
 
-  self.cursor = love.graphics.newImage("assets/cursor.png")
+  self.player_1 = love.graphics.newImage("assets/character_idle1.png")
+  self.player_2 = love.graphics.newImage("assets/character_idle2.png")
+  self.player_3 = love.graphics.newImage("assets/character_idle3.png")
+  self.player_4 = love.graphics.newImage("assets/character_idle4.png")
 
   isomaplib.set_scale(1)
   isomaplib.debug = false
@@ -46,10 +49,11 @@ function game:init()
 end
 
 function game:draw()
-  isomaplib.draw()
   if global_debug_mode then
-    love.graphics.print("DEBUG MODE - fps:"..love.timer.getFPS(),0,0)
+    love.graphics.rectangle("fill",0,0,love.graphics.getWidth(),love.graphics.getHeight())
   end
+  isomaplib.draw()
+  love.graphics.print("fps:"..love.timer.getFPS(),0,0)
   --[[
   love.graphics.arc(
     "line",love.graphics.getWidth()/2,love.graphics.getHeight()/2,
@@ -101,12 +105,16 @@ function game:mousepressed(mx,my,button)
 
     if self.player.angle >= 0 and self.player.angle < math.pi/2 then
       target.x = target.x + 1
+      self.player.direction = 1
     elseif self.player.angle > math.pi/2 and self.player.angle < math.pi then
       target.y = target.y + 1
+      self.player.direction = 2
     elseif self.player.angle > -math.pi and self.player.angle < -math.pi/2 then
       target.x = target.x - 1
+      self.player.direction = 3
     else -- lolol
       target.y = target.y - 1
+      self.player.direction = 4
     end
 
     if self.map[target.x] and self.map[target.x][target.y] and -- on map
@@ -139,6 +147,12 @@ function isomaplib.draw_callback(x,y,map_data)
     end
     if gamestates.game.map[x] and gamestates.game.map[x][y-1] and gamestates.game.map[x][y-1].wall then
       negy = true
+    end
+
+    if global_debug_mode then
+      love.graphics.setColor(255,0,0,127)
+    else
+      love.graphics.setColor(wat,wat,wat)
     end
 
     local wall = gamestates.game.wall_x
@@ -182,8 +196,17 @@ function isomaplib.draw_callback(x,y,map_data)
   end
   if gamestates.game.player.x == x and
     gamestates.game.player.y == y then
-    isolib.draw(gamestates.game.cursor,x,y)
+    if gamestates.game.player.direction == 1 then
+      isolib.draw(gamestates.game.player_1,x,y)
+    elseif gamestates.game.player.direction == 2 then
+      isolib.draw(gamestates.game.player_4,x,y)
+    elseif gamestates.game.player.direction == 3 then
+      isolib.draw(gamestates.game.player_2,x,y)
+    elseif gamestates.game.player.direction == 4 then
+      isolib.draw(gamestates.game.player_3,x,y)
+    end
   end
+
 end
 
 return game
