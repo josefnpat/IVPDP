@@ -101,9 +101,7 @@ function game:draw()
 end
 
 function game:update(dt)
-  if self.player.walking_dt ~= self.player.walking_dt_t then
-    isomaplib.center_coord(self.player.x,self.player.y,self.player.xoff,self.player.yoff)
-  end
+  isomaplib.center_coord(self.player.x,self.player.y,self.player.xoff,self.player.yoff)
 
   local vx,vy = dongwrapper.getBind(dong,"direction")
   if vx and vy and not self.player.walking then
@@ -133,7 +131,11 @@ function game:update(dt)
       self.player.x = target.x
       self.player.y = target.y
       self.player.walking = 1
-      self.player.walking_dt = self.player.walking_dt_t
+      if global_debug_mode then
+        self.player.walking_dt = 1/60
+      else
+        self.player.walking_dt = self.player.walking_dt_t
+      end
       self.player.walking_frame_dt = 0
       self.player.walking_frame_dt_t = 0.1
     end
