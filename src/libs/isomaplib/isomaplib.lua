@@ -59,13 +59,15 @@ function isomaplib.rawonmap(mx,my)
   end
 end
 
-function isomaplib.center_raw(mx,my)
+function isomaplib.center_raw(mx,my,xoff,yoff)
   local x,y = isolib.raw_to_coord(mx,my)
   isomaplib.center_coord(x,y)
 end
 
-function isomaplib.center_coord(x,y)
-  isolib.center_coord(x,y,isomaplib.screen.x,isomaplib.screen.y,isomaplib.screen.w,isomaplib.screen.h)
+function isomaplib.center_coord(x,y,xoff,yoff)
+  isolib.center_coord(x,y,
+    isomaplib.screen.x,isomaplib.screen.y,
+    isomaplib.screen.w,isomaplib.screen.h,xoff,yoff)
 end
 
 function isomaplib.valid_coord(x,y)

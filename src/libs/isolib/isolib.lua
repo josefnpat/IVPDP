@@ -7,17 +7,17 @@ isolib.offset = {}
 isolib.offset.x = 0
 isolib.offset.y = 0
 
-function isolib.draw(drawable,x,y)
+function isolib.draw(drawable,x,y,xoff,yoff)
   local rawx,rawy = isolib.coord_to_raw(x,y)
-  love.graphics.draw(drawable,rawx,rawy,0,1,1,isolib.width/2,256-isolib.height/2)
+  love.graphics.draw(drawable,rawx+(xoff or 0),rawy+(yoff or 0),0,1,1,isolib.width/2,256-isolib.height/2)
 end
 
-function isolib.center_coord(cx,cy,x,y,w,h)
+function isolib.center_coord(cx,cy,x,y,w,h,xoff,yoff)
   -- reset offsets as coord_to_raw() uses them
   isolib.offset.x,isolib.offset.y = 0,0
   tx,ty = isolib.coord_to_raw(cx,cy)
-  isolib.offset.x = math.floor(x + w/2-tx)
-  isolib.offset.y = math.floor(y + h/2-ty)
+  isolib.offset.x = math.floor(x + w/2-tx) + (xoff or 0)
+  isolib.offset.y = math.floor(y + h/2-ty) + (yoff or 0)
 end
 
 function isolib.coord_to_raw(x,y)

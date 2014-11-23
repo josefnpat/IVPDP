@@ -7,6 +7,8 @@ function game:init()
     y = 0,
     angle = 0,
     direction = 1,
+    walking_dt = 0,
+    walking_dt_t = 0.3,
   }
 
   self.mapsys = mapclass.new()
@@ -86,7 +88,9 @@ function game:draw()
 end
 
 function game:update(dt)
-  isomaplib.center_coord(self.player.x,self.player.y)
+  if self.player.walking_dt ~= self.player.walking_dt_t then
+    isomaplib.center_coord(self.player.x,self.player.y,self.player.xoff,self.player.yoff)
+  end
 
   if self.player.walking then
     self.player.walking_dt = self.player.walking_dt - dt
@@ -181,9 +185,9 @@ function game:mousepressed(mx,my,button)
       self.player.x = target.x
       self.player.y = target.y
       self.player.walking = 1
-      self.player.walking_dt = 0.25
+      self.player.walking_dt = self.player.walking_dt_t
       self.player.walking_frame_dt = 0
-      self.player.walking_frame_dt_t = 0.1
+      self.player.walking_frame_dt_t = 0.15
     end
 
   end
@@ -274,34 +278,43 @@ function isomaplib.draw_callback(x,y,map_data)
   end
   if gamestates.game.player.x == x and
     gamestates.game.player.y == y then
+
+    local rat = gamestates.game.player.walking_dt/gamestates.game.player.walking_dt_t
+    local xoff = 128/2*rat
+    local yoff = 76/2*rat
+
     if gamestates.game.player.direction == 1 then
       if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_1[gamestates.game.player.walking],x,y)
+        isolib.draw(gamestates.game.player_walk_1[gamestates.game.player.walking],x,y,-xoff,-yoff)
+        gamestates.game.player.xoff = xoff
+        gamestates.game.player.yoff = yoff
       else
         isolib.draw(gamestates.game.player_1,x,y)
       end
     elseif gamestates.game.player.direction == 2 then
       if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_4[gamestates.game.player.walking],x,y)
+        isolib.draw(gamestates.game.player_walk_4[gamestates.game.player.walking],x,y,xoff,-yoff)
+        gamestates.game.player.xoff = -xoff
+        gamestates.game.player.yoff = yoff
       else
         isolib.draw(gamestates.game.player_4,x,y)
       end
     elseif gamestates.game.player.direction == 3 then
-
       if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_2[gamestates.game.player.walking],x,y)
+        isolib.draw(gamestates.game.player_walk_2[gamestates.game.player.walking],x,y,xoff,yoff)
+        gamestates.game.player.xoff = -xoff
+        gamestates.game.player.yoff = -yoff
       else
         isolib.draw(gamestates.game.player_2,x,y)
       end
-
     elseif gamestates.game.player.direction == 4 then
-
       if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_3[gamestates.game.player.walking],x,y)
+        isolib.draw(gamestates.game.player_walk_3[gamestates.game.player.walking],x,y,-xoff,yoff)
+        gamestates.game.player.xoff = xoff
+        gamestates.game.player.yoff = -yoff
       else
         isolib.draw(gamestates.game.player_3,x,y)
       end
-
     end
   end
 
