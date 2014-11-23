@@ -106,7 +106,7 @@ function game:update(dt)
   end
 
   local vx,vy = dongwrapper.getBind(dong,"direction")
-  if vx and vy then
+  if vx and vy and not self.player.walking then
     self.player.angle = math.atan2(vy,vx)
 
     local target = {x=self.player.x,y=self.player.y}
@@ -153,8 +153,6 @@ function game:update(dt)
       self.player.walking = nil
     end
   else
-
-
     if self.map[self.player.x] and self.map[self.player.x][self.player.y] and
       self.map[self.player.x][self.player.y].trap then
       self.map[self.player.x][self.player.y].trap_triggered = true
@@ -226,12 +224,18 @@ function game:keypressed(key)
   end
 end
 
-function isomaplib.draw_callback(x,y,map_data)
+function isomaplib.getDistanceShade(x,y)
   local distance = math.sqrt(
-    (x-gamestates.game.player.x)^2 + 
+    (x-gamestates.game.player.x)^2 +
     (y-gamestates.game.player.y)^2
   )
-  local wat = distance > 0 and 11-distance/11*255 or 255
+  local doublewat = 11
+  return distance > 0 and doublewat-distance/doublewat*255 or 255
+
+end
+
+function isomaplib.draw_callback(x,y,map_data)
+  local wat = isomaplib.getDistanceShade(x,y)
   love.graphics.setColor(wat,wat,wat)
   if map_data.secret then
     if global_debug_mode then
@@ -249,7 +253,79 @@ function isomaplib.draw_callback(x,y,map_data)
       end
       isolib.draw(gamestates.game.traps[map_data.img],x,y)
     end
-  elseif map_data.wall then
+  end
+end
+
+function isomaplib.draw_callback2(x,y,map_data)
+
+  love.graphics.setColor(255,255,255)
+  if gamestates.game.player.x == x and
+    gamestates.game.player.y == y then
+
+    local rat = gamestates.game.player.walking_dt/gamestates.game.player.walking_dt_t
+    local xoff = 128/2*rat
+    local yoff = 76/2*rat
+
+    if gamestates.game.player.direction == 1 then
+      if gamestates.game.player.walking then
+        isolib.draw(gamestates.game.player_walk_1[gamestates.game.player.walking],x,y,-xoff,-yoff)
+        gamestates.game.player.xoff = xoff
+        gamestates.game.player.yoff = yoff
+      else
+        isolib.draw(gamestates.game.player_1,x,y)
+      end
+    elseif gamestates.game.player.direction == 2 then
+      if gamestates.game.player.walking then
+        isolib.draw(gamestates.game.player_walk_4[gamestates.game.player.walking],x,y,xoff,-yoff)
+        gamestates.game.player.xoff = -xoff
+        gamestates.game.player.yoff = yoff
+      else
+        isolib.draw(gamestates.game.player_4,x,y)
+      end
+    elseif gamestates.game.player.direction == 3 then
+      if gamestates.game.player.walking then
+        isolib.draw(gamestates.game.player_walk_2[gamestates.game.player.walking],x,y,xoff,yoff)
+        gamestates.game.player.xoff = -xoff
+        gamestates.game.player.yoff = -yoff
+      else
+        isolib.draw(gamestates.game.player_2,x,y)
+      end
+    elseif gamestates.game.player.direction == 4 then
+      if gamestates.game.player.walking then
+        isolib.draw(gamestates.game.player_walk_3[gamestates.game.player.walking],x,y,-xoff,yoff)
+        gamestates.game.player.xoff = xoff
+        gamestates.game.player.yoff = -yoff
+      else
+        isolib.draw(gamestates.game.player_3,x,y)
+      end
+    end
+
+    if not gamestates.game.player.walking then
+      local draw_tear
+      local checks = {}
+      for i = -1,1 do
+        for j = -1,1 do
+          table.insert(checks, {gamestates.game.player.x+i,gamestates.game.player.y+j} )
+        end
+      end
+      for _,check in pairs(checks) do
+        if gamestates.game.map[check[1]] and gamestates.game.map[check[1]][check[2]] and
+          gamestates.game.map[check[1]][check[2]].trap then
+          draw_tear = true
+          break
+        end
+      end
+      if draw_tear then
+        isolib.draw(gamestates.game.player_tear,gamestates.game.player.x,gamestates.game.player.y)
+      end
+    end
+
+
+  end
+
+  local wat = isomaplib.getDistanceShade(x,y)
+
+  if map_data.wall then
     local plusx,plusy,negx,negy
     if gamestates.game.map[x+1] and gamestates.game.map[x+1][y] and gamestates.game.map[x+1][y].wall then
       plusx = true
@@ -316,69 +392,7 @@ function isomaplib.draw_callback(x,y,map_data)
 
     isolib.draw(wall,x,y)
   end
-  if gamestates.game.player.x == x and
-    gamestates.game.player.y == y then
 
-    local rat = gamestates.game.player.walking_dt/gamestates.game.player.walking_dt_t
-    local xoff = 128/2*rat
-    local yoff = 76/2*rat
-
-    if gamestates.game.player.direction == 1 then
-      if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_1[gamestates.game.player.walking],x,y,-xoff,-yoff)
-        gamestates.game.player.xoff = xoff
-        gamestates.game.player.yoff = yoff
-      else
-        isolib.draw(gamestates.game.player_1,x,y)
-      end
-    elseif gamestates.game.player.direction == 2 then
-      if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_4[gamestates.game.player.walking],x,y,xoff,-yoff)
-        gamestates.game.player.xoff = -xoff
-        gamestates.game.player.yoff = yoff
-      else
-        isolib.draw(gamestates.game.player_4,x,y)
-      end
-    elseif gamestates.game.player.direction == 3 then
-      if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_2[gamestates.game.player.walking],x,y,xoff,yoff)
-        gamestates.game.player.xoff = -xoff
-        gamestates.game.player.yoff = -yoff
-      else
-        isolib.draw(gamestates.game.player_2,x,y)
-      end
-    elseif gamestates.game.player.direction == 4 then
-      if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_3[gamestates.game.player.walking],x,y,-xoff,yoff)
-        gamestates.game.player.xoff = xoff
-        gamestates.game.player.yoff = -yoff
-      else
-        isolib.draw(gamestates.game.player_3,x,y)
-      end
-    end
-
-    if not gamestates.game.player.walking then
-      local draw_tear
-      local checks = {}
-      for i = -1,1 do
-        for j = -1,1 do
-          table.insert(checks, {gamestates.game.player.x+i,gamestates.game.player.y+j} )
-        end
-      end
-      for _,check in pairs(checks) do
-        if gamestates.game.map[check[1]] and gamestates.game.map[check[1]][check[2]] and
-          gamestates.game.map[check[1]][check[2]].trap then
-          draw_tear = true
-          break
-        end
-      end
-      if draw_tear then
-        isolib.draw(gamestates.game.player_tear,gamestates.game.player.x,gamestates.game.player.y)
-      end
-    end
-
-
-  end
 
 end
 

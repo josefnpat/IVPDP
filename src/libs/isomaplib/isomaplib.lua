@@ -48,6 +48,7 @@ function isomaplib.draw()
 
   isomaplib._loopover(isomaplib.draw_callback)
   isomaplib._loopover(isomaplib.draw_callback2)
+  isomaplib._loopover(isomaplib.draw_callback3)
 
   if isomaplib.debug then
     love.graphics.setColor(255,255,255)
