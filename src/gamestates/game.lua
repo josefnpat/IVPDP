@@ -116,9 +116,11 @@ function game:update(dt)
       self.player.direction = 4
     end
 
-    if self.map[target.x] and self.map[target.x][target.y] and -- on map
+    if global_debug_mode or (
+      self.map[target.x] and self.map[target.x][target.y] and -- on map
       not self.player.walking and -- not already walking
-      (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) then -- not a wall
+      (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) 
+    ) then -- not a wall
       self.player.x = target.x
       self.player.y = target.y
       self.player.walking = 1
