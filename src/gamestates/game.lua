@@ -69,32 +69,30 @@ function game:update(dt)
     local mapx,mapy = isolib.raw_to_coord(mx,my)
     mapx = tonumber(mapx)
     mapy = tonumber(mapy)
-    if love.keyboard.isDown("1") then
+
+    if love.keyboard.isDown("1","2","3") then
       if not self.map[mapx] then
         self.map[mapx] = {}
       end
       if not self.map[mapx][mapy] then
         self.map[mapx][mapy] = {}
       end
-      self.map[mapx][mapy] = nil
-    elseif love.keyboard.isDown("2") then
-      if not self.map[mapx] then
-        self.map[mapx] = {}
-      end
-      if not self.map[mapx][mapy] then
-        self.map[mapx][mapy] = {}
-      end
-      self.map[mapx][mapy] = {}
-    elseif love.keyboard.isDown("3") then
-      if not self.map[mapx] then
-        self.map[mapx] = {}
-      end
-      if not self.map[mapx][mapy] then
-        self.map[mapx][mapy] = {}
+      if love.keyboard.isDown("lshift") then
+        self.map[mapx][mapy].secret = true
+      else
+        self.map[mapx][mapy].secret = nil
       end
 
-      self.map[mapx][mapy].wall = true
+      if love.keyboard.isDown("1") then
+        self.map[mapx][mapy] = nil
+      elseif love.keyboard.isDown("2") then
+        self.map[mapx][mapy].wall = nil
+      elseif love.keyboard.isDown("3") then
+        self.map[mapx][mapy].wall = true
+      end
+
     end
+
   end
 end
 
@@ -129,7 +127,7 @@ function game:mousepressed(mx,my,button)
     end
 
     if self.map[target.x] and self.map[target.x][target.y] and -- on map
-      not self.map[target.x][target.y].wall then -- not a wall
+      (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) then -- not a wall
       self.player.x = target.x
       self.player.y = target.y
     end
@@ -144,7 +142,15 @@ function isomaplib.draw_callback(x,y,map_data)
   )
   local wat = distance > 0 and 11-distance/11*255 or 255
   love.graphics.setColor(wat,wat,wat)
-  isolib.draw(gamestates.game.img,x,y)
+  if map_data.secret then
+    if global_debug_mode then
+      love.graphics.setColor(0,0,255,127)
+      isolib.draw(gamestates.game.img,x,y)
+    end
+  else
+    isolib.draw(gamestates.game.img,x,y)
+  end
+  love.graphics.setColor(wat,wat,wat)
   if map_data.wall then
     local plusx,plusy,negx,negy
     if gamestates.game.map[x+1] and gamestates.game.map[x+1][y] and gamestates.game.map[x+1][y].wall then
@@ -161,7 +167,11 @@ function isomaplib.draw_callback(x,y,map_data)
     end
 
     if global_debug_mode then
-      love.graphics.setColor(255,0,0,127)
+      if map_data.secret then
+        love.graphics.setColor(0,255,0,127)
+      else
+        love.graphics.setColor(255,0,0,127)
+      end
     else
       love.graphics.setColor(wat,wat,wat)
     end
