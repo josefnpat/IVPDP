@@ -22,10 +22,11 @@ function isomaplib.set_scale(scale)
   isolib.height = isolib.height * scale
 end
 
-function isomaplib.draw()
-  local orig_r,orig_g,orig_b,orig_a = love.graphics.getColor()
+function isomaplib._loopover(callback)
   local ox,oy = isolib.raw_to_coord(isomaplib.screen.x,isomaplib.screen.y)
-  local fx,fy = isolib.raw_to_coord(isomaplib.screen.x+isomaplib.screen.w,isomaplib.screen.y+isomaplib.screen.h)
+  local fx,fy = isolib.raw_to_coord(
+    isomaplib.screen.x+isomaplib.screen.w,
+    isomaplib.screen.y+isomaplib.screen.h)
   local k = 0
   for i=ox,fx do
     k = k + 1
@@ -34,13 +35,20 @@ function isomaplib.draw()
       --if on the "screen"
       if rawx <= isomaplib.screen.x + isomaplib.screen.w and
         rawy <= isomaplib.screen.y + isomaplib.screen.h + 256 then -- ADDED 256 HAck hack hack
-        if isomaplib.map[i] and isomaplib.map[i][j] and isomaplib.draw_callback then
-          isomaplib.draw_callback(i,j,isomaplib.map[i][j])
+        if isomaplib.map[i] and isomaplib.map[i][j] and callback then
+          callback(i,j,isomaplib.map[i][j])
         end
       end
     end
   end
-  
+end
+
+function isomaplib.draw()
+  local orig_r,orig_g,orig_b,orig_a = love.graphics.getColor()
+
+  isomaplib._loopover(isomaplib.draw_callback)
+  isomaplib._loopover(isomaplib.draw_callback2)
+
   if isomaplib.debug then
     love.graphics.setColor(255,255,255)
     love.graphics.print("cx:"..isomaplib.x.." y:"..isomaplib.y,0,16)

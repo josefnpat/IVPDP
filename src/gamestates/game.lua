@@ -69,6 +69,11 @@ function game:init()
     love.graphics.newImage('assets/pedo.png'),
     love.graphics.newImage('assets/anime.png'),
     love.graphics.newImage('assets/doge.png'),
+    love.graphics.newImage('assets/pewdiepie.png'),
+    love.graphics.newImage('assets/fab1.png'),
+    love.graphics.newImage('assets/fab2.png'),
+    love.graphics.newImage('assets/fab3.png'),
+    love.graphics.newImage('assets/fab4.png'),
   }
 
   self.traps = {
