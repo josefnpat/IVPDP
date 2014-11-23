@@ -44,6 +44,12 @@ function game:init()
   self.player_3 = love.graphics.newImage("assets/character_idle3.png")
   self.player_4 = love.graphics.newImage("assets/character_idle4.png")
 
+  self.doodads = { -- Keep order unless you want to redo all doodads on map!
+    love.graphics.newImage('assets/pedo.png'),
+    love.graphics.newImage('assets/anime.png'),
+    love.graphics.newImage('assets/doge.png'),
+  }
+
   isomaplib.set_scale(1)
   isomaplib.debug = false
   isomaplib.center_coord(0,0)
@@ -70,7 +76,7 @@ function game:update(dt)
     mapx = tonumber(mapx)
     mapy = tonumber(mapy)
 
-    if love.keyboard.isDown("1","2","3") then
+    if love.keyboard.isDown("1","2","3","4") then
       if not self.map[mapx] then
         self.map[mapx] = {}
       end
@@ -83,7 +89,17 @@ function game:update(dt)
         self.map[mapx][mapy].secret = nil
       end
 
-      if love.keyboard.isDown("1") then
+      if love.keyboard.isDown("4") then
+        if self.map[mapx][mapy].doodad then
+          self.map[mapx][mapy].doodad = self.map[mapx][mapy].doodad - 1
+          if self.map[mapx][mapy].doodad <= 0 then
+            self.map[mapx][mapy].doodad = #self.doodads
+          end
+        else
+          self.map[mapx][mapy].doodad = #self.doodads
+        end
+        self.map[mapx][mapy].wall = true
+      elseif love.keyboard.isDown("1") then
         self.map[mapx][mapy] = nil
       elseif love.keyboard.isDown("2") then
         self.map[mapx][mapy].wall = nil
@@ -210,7 +226,10 @@ function isomaplib.draw_callback(x,y,map_data)
       wall = gamestates.game.wall_straight_1
     elseif not plusx and not plusy and not negx and negy then
       wall = gamestates.game.wall_straight_1
+    end
 
+    if map_data.doodad then
+      wall = gamestates.game.doodads[map_data.doodad]
     end
 
     isolib.draw(wall,x,y)
