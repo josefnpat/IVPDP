@@ -16,6 +16,7 @@ isomaplib = require("libs/isomaplib/isomaplib")
 gamestates = {
   splash = require "gamestates.splash",
   game = require "gamestates.game",
+  dead = require "gamestates.dead",
 }
 
 function love.load()

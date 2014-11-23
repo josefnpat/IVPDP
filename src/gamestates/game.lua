@@ -1,6 +1,6 @@
 local game = {}
 
-function game:init()
+function game:enter()
 
   self.player = {
     x = 0,
@@ -11,16 +11,12 @@ function game:init()
     walking_dt_t = 0.3,
   }
 
+end
+
+function game:init()
+
   self.mapsys = mapclass.new()
   self.map = self.mapsys:load()
-
-  --[[
-  for x,v in pairs(self.map) do
-    for y,w in pairs(v) do
-      print(x,y,#w)
-    end
-  end
-  --]]
 
   isomaplib.load_map(self.map)
 
@@ -72,6 +68,12 @@ function game:init()
     love.graphics.newImage('assets/anime.png'),
     love.graphics.newImage('assets/doge.png'),
   }
+
+  self.traps = {
+    love.graphics.newImage("assets/trap.png"),
+    love.graphics.newImage("assets/spikes.png"),
+  }
+  self.monster = love.graphics.newImage("assets/monster.png")
 
   isomaplib.set_scale(1)
   isomaplib.debug = false
@@ -130,7 +132,6 @@ function game:update(dt)
     end
   end
 
-
   if self.player.walking then
     self.player.walking_dt = self.player.walking_dt - dt
     self.player.walking_frame_dt = self.player.walking_frame_dt + dt
@@ -144,6 +145,12 @@ function game:update(dt)
     if self.player.walking_dt <= 0 then
       self.player.walking = nil
     end
+  else
+    if self.map[self.player.x] and self.map[self.player.x][self.player.y] and
+      self.map[self.player.x][self.player.y].trap then
+      self.map[self.player.x][self.player.y].trap_triggered = true
+      Gamestate.switch(gamestates.dead)
+    end
   end
 
   if global_debug_mode then
@@ -152,7 +159,7 @@ function game:update(dt)
     mapx = tonumber(mapx)
     mapy = tonumber(mapy)
 
-    if love.keyboard.isDown("1","2","3","4") then
+    if love.keyboard.isDown("1","2","3","4","q","w","e") then
       if not self.map[mapx] then
         self.map[mapx] = {}
       end
@@ -181,6 +188,18 @@ function game:update(dt)
         self.map[mapx][mapy].wall = nil
       elseif love.keyboard.isDown("3") then
         self.map[mapx][mapy].wall = true
+      elseif love.keyboard.isDown("q") then
+        -- trap
+        self.map[mapx][mapy].trap = true
+        self.map[mapx][mapy].img = 1
+      elseif love.keyboard.isDown("w") then
+        -- spikes
+        self.map[mapx][mapy].trap = true
+        self.map[mapx][mapy].img = 2
+      elseif love.keyboard.isDown("e") then
+        -- monster
+        self.map[mapx][mapy].monster = true
+        self.map[mapx][mapy].direction = math.random(1,2)
       end
 
     end
@@ -193,12 +212,6 @@ function game:keypressed(key)
     if key == "s" then
       self.mapsys:save(self.map)
     end
-  end
-end
-
-function game:mousepressed(mx,my,button)
-  if button == "l" then
-
   end
 end
 
@@ -218,7 +231,14 @@ function isomaplib.draw_callback(x,y,map_data)
     isolib.draw(gamestates.game.img,x,y)
   end
   love.graphics.setColor(wat,wat,wat)
-  if map_data.wall then
+  if map_data.trap then
+    if map_data.trap_triggered or global_debug_mode then
+      if global_debug_mode then
+        love.graphics.setColor(255,255,0,127)
+      end
+      isolib.draw(gamestates.game.traps[map_data.img],x,y)
+    end
+  elseif map_data.wall then
     local plusx,plusy,negx,negy
     if gamestates.game.map[x+1] and gamestates.game.map[x+1][y] and gamestates.game.map[x+1][y].wall then
       plusx = true
