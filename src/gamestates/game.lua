@@ -47,20 +47,24 @@ function game:init()
   self.player_4 = love.graphics.newImage("assets/character_idle4.png")
 
   self.player_walk_1 = {
-    love.graphics.newImage("assets/character_anim1.png"), 
-    love.graphics.newImage("assets/character_anim5.png"), 
+    love.graphics.newImage("assets/character_anim1.png"),
+    self.player_1,
+    love.graphics.newImage("assets/character_anim5.png"),
   }
   self.player_walk_2 = {
-    love.graphics.newImage("assets/character_anim2.png"), 
-    love.graphics.newImage("assets/character_anim6.png"), 
+    love.graphics.newImage("assets/character_anim2.png"),
+    self.player_2,
+    love.graphics.newImage("assets/character_anim6.png"),
   }
   self.player_walk_3 = {
-    love.graphics.newImage("assets/character_anim3.png"), 
-    love.graphics.newImage("assets/character_anim7.png"), 
+    love.graphics.newImage("assets/character_anim3.png"),
+    self.player_3,
+    love.graphics.newImage("assets/character_anim7.png"),
   }
   self.player_walk_4 = {
-    love.graphics.newImage("assets/character_anim4.png"), 
-    love.graphics.newImage("assets/character_anim8.png"), 
+    love.graphics.newImage("assets/character_anim4.png"),
+    self.player_4,
+    love.graphics.newImage("assets/character_anim8.png"),
   }
 
   self.doodads = { -- Keep order unless you want to redo all doodads on map!
@@ -187,7 +191,7 @@ function game:mousepressed(mx,my,button)
       self.player.walking = 1
       self.player.walking_dt = self.player.walking_dt_t
       self.player.walking_frame_dt = 0
-      self.player.walking_frame_dt_t = 0.15
+      self.player.walking_frame_dt_t = 0.1
     end
 
   end
