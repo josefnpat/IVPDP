@@ -84,17 +84,50 @@ function game:draw()
   end
   isomaplib.draw()
   love.graphics.print("fps:"..love.timer.getFPS(),0,0)
-  --[[
-  love.graphics.arc(
-    "line",love.graphics.getWidth()/2,love.graphics.getHeight()/2,
-    128,gamestates.game.player.angle+0.1,gamestates.game.player.angle-0.1)
-  --]]
+  if global_debug_mode then
+    love.graphics.arc(
+      "line",love.graphics.getWidth()/2,love.graphics.getHeight()/2,
+      128,gamestates.game.player.angle+0.1,gamestates.game.player.angle-0.1)
+  end
 end
 
 function game:update(dt)
   if self.player.walking_dt ~= self.player.walking_dt_t then
     isomaplib.center_coord(self.player.x,self.player.y,self.player.xoff,self.player.yoff)
   end
+
+  local vx,vy = dongwrapper.getBind(dong,"direction")
+  if vx and vy then
+    self.player.angle = math.atan2(vy,vx)
+
+    local target = {x=self.player.x,y=self.player.y}
+
+    if self.player.angle >= 0 and self.player.angle < math.pi/2 then
+      target.x = target.x + 1
+      self.player.direction = 1
+    elseif self.player.angle > math.pi/2 and self.player.angle < math.pi then
+      target.y = target.y + 1
+      self.player.direction = 2
+    elseif self.player.angle > -math.pi and self.player.angle < -math.pi/2 then
+      target.x = target.x - 1
+      self.player.direction = 3
+    else -- lolol
+      target.y = target.y - 1
+      self.player.direction = 4
+    end
+
+    if self.map[target.x] and self.map[target.x][target.y] and -- on map
+      not self.player.walking and -- not already walking
+      (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) then -- not a wall
+      self.player.x = target.x
+      self.player.y = target.y
+      self.player.walking = 1
+      self.player.walking_dt = self.player.walking_dt_t
+      self.player.walking_frame_dt = 0
+      self.player.walking_frame_dt_t = 0.1
+    end
+  end
+
 
   if self.player.walking then
     self.player.walking_dt = self.player.walking_dt - dt
@@ -163,36 +196,6 @@ end
 
 function game:mousepressed(mx,my,button)
   if button == "l" then
-    self.player.angle = math.atan2(
-      my - love.graphics.getHeight()/2,
-      mx - love.graphics.getWidth()/2)
-
-    local target = {x=self.player.x,y=self.player.y}
-
-    if self.player.angle >= 0 and self.player.angle < math.pi/2 then
-      target.x = target.x + 1
-      self.player.direction = 1
-    elseif self.player.angle > math.pi/2 and self.player.angle < math.pi then
-      target.y = target.y + 1
-      self.player.direction = 2
-    elseif self.player.angle > -math.pi and self.player.angle < -math.pi/2 then
-      target.x = target.x - 1
-      self.player.direction = 3
-    else -- lolol
-      target.y = target.y - 1
-      self.player.direction = 4
-    end
-
-    if self.map[target.x] and self.map[target.x][target.y] and -- on map
-      not self.player.walking and -- not already walking
-      (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) then -- not a wall
-      self.player.x = target.x
-      self.player.y = target.y
-      self.player.walking = 1
-      self.player.walking_dt = self.player.walking_dt_t
-      self.player.walking_frame_dt = 0
-      self.player.walking_frame_dt_t = 0.1
-    end
 
   end
 end
