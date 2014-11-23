@@ -44,6 +44,23 @@ function game:init()
   self.player_3 = love.graphics.newImage("assets/character_idle3.png")
   self.player_4 = love.graphics.newImage("assets/character_idle4.png")
 
+  self.player_walk_1 = {
+    love.graphics.newImage("assets/character_anim1.png"), 
+    love.graphics.newImage("assets/character_anim5.png"), 
+  }
+  self.player_walk_2 = {
+    love.graphics.newImage("assets/character_anim2.png"), 
+    love.graphics.newImage("assets/character_anim6.png"), 
+  }
+  self.player_walk_3 = {
+    love.graphics.newImage("assets/character_anim3.png"), 
+    love.graphics.newImage("assets/character_anim7.png"), 
+  }
+  self.player_walk_4 = {
+    love.graphics.newImage("assets/character_anim4.png"), 
+    love.graphics.newImage("assets/character_anim8.png"), 
+  }
+
   self.doodads = { -- Keep order unless you want to redo all doodads on map!
     love.graphics.newImage('assets/pedo.png'),
     love.graphics.newImage('assets/anime.png'),
@@ -70,6 +87,22 @@ end
 
 function game:update(dt)
   isomaplib.center_coord(self.player.x,self.player.y)
+
+  if self.player.walking then
+    self.player.walking_dt = self.player.walking_dt - dt
+    self.player.walking_frame_dt = self.player.walking_frame_dt + dt
+    if self.player.walking_frame_dt > self.player.walking_frame_dt_t then
+      self.player.walking_frame_dt = 0
+      self.player.walking = self.player.walking + 1
+      if self.player.walking > #self.player_walk_1 then
+        self.player.walking = 1
+      end
+    end
+    if self.player.walking_dt <= 0 then
+      self.player.walking = nil
+    end
+  end
+
   if global_debug_mode then
     local mx,my = love.mouse.getPosition()
     local mapx,mapy = isolib.raw_to_coord(mx,my)
@@ -143,9 +176,14 @@ function game:mousepressed(mx,my,button)
     end
 
     if self.map[target.x] and self.map[target.x][target.y] and -- on map
+      not self.player.walking and -- not already walking
       (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) then -- not a wall
       self.player.x = target.x
       self.player.y = target.y
+      self.player.walking = 1
+      self.player.walking_dt = 0.25
+      self.player.walking_frame_dt = 0
+      self.player.walking_frame_dt_t = 0.1
     end
 
   end
@@ -237,13 +275,33 @@ function isomaplib.draw_callback(x,y,map_data)
   if gamestates.game.player.x == x and
     gamestates.game.player.y == y then
     if gamestates.game.player.direction == 1 then
-      isolib.draw(gamestates.game.player_1,x,y)
+      if gamestates.game.player.walking then
+        isolib.draw(gamestates.game.player_walk_1[gamestates.game.player.walking],x,y)
+      else
+        isolib.draw(gamestates.game.player_1,x,y)
+      end
     elseif gamestates.game.player.direction == 2 then
-      isolib.draw(gamestates.game.player_4,x,y)
+      if gamestates.game.player.walking then
+        isolib.draw(gamestates.game.player_walk_4[gamestates.game.player.walking],x,y)
+      else
+        isolib.draw(gamestates.game.player_4,x,y)
+      end
     elseif gamestates.game.player.direction == 3 then
-      isolib.draw(gamestates.game.player_2,x,y)
+
+      if gamestates.game.player.walking then
+        isolib.draw(gamestates.game.player_walk_2[gamestates.game.player.walking],x,y)
+      else
+        isolib.draw(gamestates.game.player_2,x,y)
+      end
+
     elseif gamestates.game.player.direction == 4 then
-      isolib.draw(gamestates.game.player_3,x,y)
+
+      if gamestates.game.player.walking then
+        isolib.draw(gamestates.game.player_walk_3[gamestates.game.player.walking],x,y)
+      else
+        isolib.draw(gamestates.game.player_3,x,y)
+      end
+
     end
   end
 
