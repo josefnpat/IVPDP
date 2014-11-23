@@ -2,13 +2,16 @@ local game = {}
 
 function game:enter()
 
-  self.player = {
-    x = 0,
-    y = 0,
-    angle = 0,
-    direction = 1,
-    walking_dt = 0,
-    walking_dt_t = 0.3,
+  self.players = {
+    {
+      current = true,
+      x = 0,
+      y = 0,
+      angle = 0,
+      direction = 1,
+      walking_dt = 0,
+      walking_dt_t = 0.3,
+    },
   }
 
 end
@@ -94,72 +97,82 @@ function game:draw()
   isomaplib.draw()
   love.graphics.print("fps:"..love.timer.getFPS(),0,0)
   if global_debug_mode then
-    love.graphics.arc(
-      "line",love.graphics.getWidth()/2,love.graphics.getHeight()/2,
-      128,gamestates.game.player.angle+0.1,gamestates.game.player.angle-0.1)
+    for _,player in pairs(gamestates.game.players) do
+      love.graphics.arc(
+        "line",love.graphics.getWidth()/2,love.graphics.getHeight()/2,
+        128,player.angle+0.05,player.angle-0.05)
+    end
   end
 end
 
 function game:update(dt)
-  isomaplib.center_coord(self.player.x,self.player.y,self.player.xoff,self.player.yoff)
+  isomaplib.center_coord(self.players[1].x,self.players[1].y,self.players[1].xoff,self.players[1].yoff)
 
-  local vx,vy = dongwrapper.getBind(dong,"direction")
-  if vx and vy and not self.player.walking then
-    self.player.angle = math.atan2(vy,vx)
-
-    local target = {x=self.player.x,y=self.player.y}
-
-    if self.player.angle >= 0 and self.player.angle < math.pi/2 then
-      target.x = target.x + 1
-      self.player.direction = 1
-    elseif self.player.angle > math.pi/2 and self.player.angle < math.pi then
-      target.y = target.y + 1
-      self.player.direction = 2
-    elseif self.player.angle > -math.pi and self.player.angle < -math.pi/2 then
-      target.x = target.x - 1
-      self.player.direction = 3
-    else -- lolol
-      target.y = target.y - 1
-      self.player.direction = 4
+  for _,player in pairs(self.players) do
+    local vx,vy
+    if player.current then
+      vx,vy = dongwrapper.getBind(dong,"direction")
+    else
+      -- TODO: MEMORIES
     end
 
-    if global_debug_mode or (
-      self.map[target.x] and self.map[target.x][target.y] and -- on map
-      not self.player.walking and -- not already walking
-      (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) 
-    ) then -- not a wall
-      self.player.x = target.x
-      self.player.y = target.y
-      self.player.walking = 1
-      if global_debug_mode then
-        self.player.walking_dt = 1/60
-      else
-        self.player.walking_dt = self.player.walking_dt_t
+    if vx and vy and not player.walking then
+      player.angle = math.atan2(vy,vx)
+
+      local target = {x=player.x,y=player.y}
+
+      if player.angle >= 0 and player.angle < math.pi/2 then
+        target.x = target.x + 1
+        player.direction = 1
+      elseif player.angle > math.pi/2 and player.angle < math.pi then
+        target.y = target.y + 1
+        player.direction = 2
+      elseif player.angle > -math.pi and player.angle < -math.pi/2 then
+        target.x = target.x - 1
+        player.direction = 3
+      else -- lolol
+        target.y = target.y - 1
+        player.direction = 4
       end
-      self.player.walking_frame_dt = 0
-      self.player.walking_frame_dt_t = 0.1
-    end
-  end
 
-  if self.player.walking then
-    self.player.walking_dt = self.player.walking_dt - dt
-    self.player.walking_frame_dt = self.player.walking_frame_dt + dt
-    if self.player.walking_frame_dt > self.player.walking_frame_dt_t then
-      self.player.walking_frame_dt = 0
-      self.player.walking = self.player.walking + 1
-      if self.player.walking > #self.player_walk_1 then
-        self.player.walking = 1
+      if global_debug_mode or (
+        self.map[target.x] and self.map[target.x][target.y] and -- on map
+        not player.walking and -- not already walking
+        (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) 
+      ) then -- not a wall
+        player.x = target.x
+        player.y = target.y
+        player.walking = 1
+        if global_debug_mode then
+          player.walking_dt = 1/60
+        else
+          player.walking_dt = player.walking_dt_t
+        end
+        player.walking_frame_dt = 0
+        player.walking_frame_dt_t = 0.1
       end
     end
-    if self.player.walking_dt <= 0 then
-      self.player.walking = nil
-    end
-  else
-    if self.map[self.player.x] and self.map[self.player.x][self.player.y] and
-      self.map[self.player.x][self.player.y].trap then
-      self.map[self.player.x][self.player.y].trap_triggered = true
-      if not global_debug_mode then
-        Gamestate.switch(gamestates.dead)
+
+    if player.walking then
+      player.walking_dt = player.walking_dt - dt
+      player.walking_frame_dt = player.walking_frame_dt + dt
+      if player.walking_frame_dt > player.walking_frame_dt_t then
+        player.walking_frame_dt = 0
+        player.walking = player.walking + 1
+        if player.walking > #self.player_walk_1 then
+          player.walking = 1
+        end
+      end
+      if player.walking_dt <= 0 then
+        player.walking = nil
+      end
+    else
+      if self.map[player.x] and self.map[player.x][player.y] and
+        self.map[player.x][player.y].trap then
+        self.map[player.x][player.y].trap_triggered = true
+        if player.current and not global_debug_mode then
+          Gamestate.switch(gamestates.dead)
+        end
       end
     end
   end
@@ -228,12 +241,11 @@ end
 
 function isomaplib.getDistanceShade(x,y)
   local distance = math.sqrt(
-    (x-gamestates.game.player.x)^2 +
-    (y-gamestates.game.player.y)^2
+    (x-gamestates.game.players[1].x)^2 +
+    (y-gamestates.game.players[1].y)^2
   )
   local doublewat = 11
   return distance > 0 and doublewat-distance/doublewat*255 or 255
-
 end
 
 function isomaplib.draw_callback(x,y,map_data)
@@ -260,69 +272,74 @@ end
 
 function isomaplib.draw_callback2(x,y,map_data)
 
-  love.graphics.setColor(255,255,255)
-  if gamestates.game.player.x == x and
-    gamestates.game.player.y == y then
+  for _,player in pairs(gamestates.game.players) do
+    if player.x == x and
+      player.y == y then
 
-    local rat = gamestates.game.player.walking_dt/gamestates.game.player.walking_dt_t
-    local xoff = 128/2*rat
-    local yoff = 76/2*rat
+      if player.current then
+        love.graphics.setColor(255,255,255)
+      else
+        love.graphics.setColor(80,173,255,127)
+      end
 
-    if gamestates.game.player.direction == 1 then
-      if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_1[gamestates.game.player.walking],x,y,-xoff,-yoff)
-        gamestates.game.player.xoff = xoff
-        gamestates.game.player.yoff = yoff
-      else
-        isolib.draw(gamestates.game.player_1,x,y)
-      end
-    elseif gamestates.game.player.direction == 2 then
-      if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_4[gamestates.game.player.walking],x,y,xoff,-yoff)
-        gamestates.game.player.xoff = -xoff
-        gamestates.game.player.yoff = yoff
-      else
-        isolib.draw(gamestates.game.player_4,x,y)
-      end
-    elseif gamestates.game.player.direction == 3 then
-      if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_2[gamestates.game.player.walking],x,y,xoff,yoff)
-        gamestates.game.player.xoff = -xoff
-        gamestates.game.player.yoff = -yoff
-      else
-        isolib.draw(gamestates.game.player_2,x,y)
-      end
-    elseif gamestates.game.player.direction == 4 then
-      if gamestates.game.player.walking then
-        isolib.draw(gamestates.game.player_walk_3[gamestates.game.player.walking],x,y,-xoff,yoff)
-        gamestates.game.player.xoff = xoff
-        gamestates.game.player.yoff = -yoff
-      else
-        isolib.draw(gamestates.game.player_3,x,y)
-      end
-    end
+      local rat = player.walking_dt/player.walking_dt_t
+      local xoff = 128/2*rat
+      local yoff = 76/2*rat
 
-    if not gamestates.game.player.walking then
-      local draw_tear
-      local checks = {}
-      for i = -1,1 do
-        for j = -1,1 do
-          table.insert(checks, {gamestates.game.player.x+i,gamestates.game.player.y+j} )
+      if player.direction == 1 then
+        if player.walking then
+          isolib.draw(gamestates.game.player_walk_1[player.walking],x,y,-xoff,-yoff)
+          player.xoff = xoff
+          player.yoff = yoff
+        else
+          isolib.draw(gamestates.game.player_1,x,y)
+        end
+      elseif player.direction == 2 then
+        if player.walking then
+          isolib.draw(gamestates.game.player_walk_4[player.walking],x,y,xoff,-yoff)
+          player.xoff = -xoff
+          player.yoff = yoff
+        else
+          isolib.draw(gamestates.game.player_4,x,y)
+        end
+      elseif player.direction == 3 then
+        if player.walking then
+          isolib.draw(gamestates.game.player_walk_2[player.walking],x,y,xoff,yoff)
+          player.xoff = -xoff
+          player.yoff = -yoff
+        else
+          isolib.draw(gamestates.game.player_2,x,y)
+        end
+      elseif player.direction == 4 then
+        if player.walking then
+          isolib.draw(gamestates.game.player_walk_3[player.walking],x,y,-xoff,yoff)
+          player.xoff = xoff
+          player.yoff = -yoff
+        else
+          isolib.draw(gamestates.game.player_3,x,y)
         end
       end
-      for _,check in pairs(checks) do
-        if gamestates.game.map[check[1]] and gamestates.game.map[check[1]][check[2]] and
-          gamestates.game.map[check[1]][check[2]].trap then
-          draw_tear = true
-          break
+
+      if not player.walking then
+        local draw_tear
+        local checks = {}
+        for i = -1,1 do
+          for j = -1,1 do
+            table.insert(checks, {player.x+i,player.y+j} )
+          end
+        end
+        for _,check in pairs(checks) do
+          if gamestates.game.map[check[1]] and gamestates.game.map[check[1]][check[2]] and
+            gamestates.game.map[check[1]][check[2]].trap then
+            draw_tear = true
+            break
+          end
+        end
+        if draw_tear then
+          isolib.draw(gamestates.game.player_tear,player.x,player.y)
         end
       end
-      if draw_tear then
-        isolib.draw(gamestates.game.player_tear,gamestates.game.player.x,gamestates.game.player.y)
-      end
     end
-
-
   end
 
   local wat = isomaplib.getDistanceShade(x,y)
