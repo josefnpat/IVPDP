@@ -37,6 +37,8 @@ function game:init()
   self.wall_straight_1 = love.graphics.newImage("assets/wall_straight1.png")
   self.wall_straight_2 = love.graphics.newImage("assets/wall_straight2.png")
 
+  self.player_tear = love.graphics.newImage("assets/tear.png")
+
   self.player_1 = love.graphics.newImage("assets/character_idle1.png")
   self.player_2 = love.graphics.newImage("assets/character_idle2.png")
   self.player_3 = love.graphics.newImage("assets/character_idle3.png")
@@ -146,10 +148,14 @@ function game:update(dt)
       self.player.walking = nil
     end
   else
+
+
     if self.map[self.player.x] and self.map[self.player.x][self.player.y] and
       self.map[self.player.x][self.player.y].trap then
       self.map[self.player.x][self.player.y].trap_triggered = true
-      Gamestate.switch(gamestates.dead)
+      if not global_debug_mode then
+        Gamestate.switch(gamestates.dead)
+      end
     end
   end
 
@@ -345,6 +351,28 @@ function isomaplib.draw_callback(x,y,map_data)
         isolib.draw(gamestates.game.player_3,x,y)
       end
     end
+
+    if not gamestates.game.player.walking then
+      local draw_tear
+      local checks = {}
+      for i = -1,1 do
+        for j = -1,1 do
+          table.insert(checks, {gamestates.game.player.x+i,gamestates.game.player.y+j} )
+        end
+      end
+      for _,check in pairs(checks) do
+        if gamestates.game.map[check[1]] and gamestates.game.map[check[1]][check[2]] and
+          gamestates.game.map[check[1]][check[2]].trap then
+          draw_tear = true
+          break
+        end
+      end
+      if draw_tear then
+        isolib.draw(gamestates.game.player_tear,gamestates.game.player.x,gamestates.game.player.y)
+      end
+    end
+
+
   end
 
 end

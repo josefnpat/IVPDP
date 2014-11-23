@@ -23,6 +23,7 @@ function map:load()
       map[tonumber(x)] = {}
       for y,d in pairs(v) do
         map[tonumber(x)][tonumber(y)] = d
+        d.trap_triggered = nil
       end
     end
     return map
