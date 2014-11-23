@@ -40,7 +40,7 @@ end
 
 function game:init()
 
-  self.recording_pool = {}
+  self.recording_pool = gamestates.download.recording_pool
 
   self.mapsys = mapclass.new()
   self.map = self.mapsys:load()

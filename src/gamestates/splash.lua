@@ -36,7 +36,7 @@ end
 
 function splash:update(dt)
   if self._splashes[self._current] == nil then
-    Gamestate.switch(gamestates.game)
+    Gamestate.switch(gamestates.download)
   elseif self._splashes[self._current]:done() then
     self._current=self._current+1
   elseif dongwrapper.getBind(dong,"confirm",1) then

@@ -3,10 +3,13 @@ pcall( function() return require("git") end );
 
 Gamestate = require "libs.gamestate"
 
+ghost_server = "http://50.116.63.25/public/IVPDP/api.php?api=1"
+
 require "libs/json"
 
 dong2lib = require "libs.dong2lib"
 dongwrapper = require "libs.dongwrapper"
+http = require('socket.http')
 
 splashclass = require "libs.splashclass"
 mapclass = require "libs.mapclass"
@@ -15,6 +18,7 @@ isomaplib = require("libs/isomaplib/isomaplib")
 
 gamestates = {
   splash = require "gamestates.splash",
+  download = require "gamestates.download",
   game = require "gamestates.game",
   dead = require "gamestates.dead",
 }
