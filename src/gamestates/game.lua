@@ -6,18 +6,19 @@ function game:init()
     x = 0,
     y = 0,
     angle = 0,
-    direction = 1
+    direction = 1,
   }
 
-  self.map = {}
-  self.size = 1
-  for x=-self.size,self.size do
-    self.map[x] = {}
-    for y=-self.size,self.size do
-      self.map[x][y] = {}
-      self.map[x][y].wall = false
+  self.mapsys = mapclass.new()
+  self.map = self.mapsys:load()
+
+  --[[
+  for x,v in pairs(self.map) do
+    for y,w in pairs(v) do
+      print(x,y,#w)
     end
   end
+  --]]
 
   isomaplib.load_map(self.map)
 
@@ -66,6 +67,8 @@ function game:update(dt)
   if global_debug_mode then
     local mx,my = love.mouse.getPosition()
     local mapx,mapy = isolib.raw_to_coord(mx,my)
+    mapx = tonumber(mapx)
+    mapy = tonumber(mapy)
     if love.keyboard.isDown("1") then
       if not self.map[mapx] then
         self.map[mapx] = {}
@@ -91,6 +94,14 @@ function game:update(dt)
       end
 
       self.map[mapx][mapy].wall = true
+    end
+  end
+end
+
+function game:keypressed(key)
+  if global_debug_mode then
+    if key == "s" then
+      self.mapsys:save(self.map)
     end
   end
 end

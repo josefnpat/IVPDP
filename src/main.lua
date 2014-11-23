@@ -3,10 +3,13 @@ pcall( function() return require("git") end );
 
 Gamestate = require "libs.gamestate"
 
+require "libs/json"
+
 dong2lib = require "libs.dong2lib"
 dongwrapper = require "libs.dongwrapper"
 
 splashclass = require "libs.splashclass"
+mapclass = require "libs.mapclass"
 
 isomaplib = require("libs/isomaplib/isomaplib")
 
