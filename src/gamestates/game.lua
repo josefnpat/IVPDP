@@ -13,10 +13,34 @@ function game:enter()
       walking_dt_t = 0.3,
     },
   }
+  for _,recording in pairs(self.recording_pool) do
+    table.insert(self.players,
+      {
+        x = 0,
+        y = 0,
+        angle = 0,
+        direction = 1,
+        walking_dt = 0,
+        walking_dt_t = 0.3,
+        recording = recording,
+        recording_index = 1
+      })
+  end
+
+  self.recording = {}
+  self.time = 0
+
+  for x,v in pairs(self.map) do
+    for y,d in pairs(v) do
+      d.trap_triggered = nil
+    end
+  end
 
 end
 
 function game:init()
+
+  self.recording_pool = {}
 
   self.mapsys = mapclass.new()
   self.map = self.mapsys:load()
@@ -106,6 +130,9 @@ function game:draw()
 end
 
 function game:update(dt)
+
+  self.time = self.time + dt
+
   isomaplib.center_coord(self.players[1].x,self.players[1].y,self.players[1].xoff,self.players[1].yoff)
 
   for _,player in pairs(self.players) do
@@ -113,10 +140,20 @@ function game:update(dt)
     if player.current then
       vx,vy = dongwrapper.getBind(dong,"direction")
     else
-      -- TODO: MEMORIES
+      if player.recording[player.recording_index] then
+        if self.time > player.recording[player.recording_index].time then
+          vx = player.recording[player.recording_index].vx
+          vy = player.recording[player.recording_index].vy
+          player.recording_index = player.recording_index + 1
+        end
+      else
+        player._remove = true
+      end
     end
 
-    if vx and vy and not player.walking then
+    --for i,p in pairs(self.players) do if p._remove then table.remove(self.players,i) end end
+
+    if vx and vy and (not player.walking or not player.current) then
       player.angle = math.atan2(vy,vx)
 
       local target = {x=player.x,y=player.y}
@@ -137,9 +174,17 @@ function game:update(dt)
 
       if global_debug_mode or (
         self.map[target.x] and self.map[target.x][target.y] and -- on map
-        not player.walking and -- not already walking
+        (not player.walking or not player.current) and -- not already walking
         (not self.map[target.x][target.y].wall or self.map[target.x][target.y].secret) 
       ) then -- not a wall
+        if player.current then
+          table.insert(self.recording,
+            {
+              time = self.time,
+              vx = vx,
+              vy = vy,
+            })
+        end
         player.x = target.x
         player.y = target.y
         player.walking = 1
@@ -171,6 +216,7 @@ function game:update(dt)
         self.map[player.x][player.y].trap then
         self.map[player.x][player.y].trap_triggered = true
         if player.current and not global_debug_mode then
+          table.insert(self.recording_pool,self.recording)
           Gamestate.switch(gamestates.dead)
         end
       end
@@ -235,6 +281,9 @@ function game:keypressed(key)
   if global_debug_mode then
     if key == "s" then
       self.mapsys:save(self.map)
+    end
+    if key == "d" then
+      print(json.encode(self.recording))
     end
   end
 end
