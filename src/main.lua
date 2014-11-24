@@ -43,9 +43,9 @@ function love.load()
   dong = dong2lib.new()
   setBindings(dong)
 
-  game_name = "Patient Negative Zero"
+  game_name = "Patient Negative One"
 
-  love.window.setTitle(game_name.." v"..git_count.." [git:"..git.."]")
+  love.window.setTitle(game_name.."  -  v"..git_count.." [git:"..git.."]")
 
 end
 

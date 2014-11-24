@@ -35,11 +35,14 @@ function game:enter()
   self.recording = {}
   self.time = 0
 
+  -- Annoying?
+  --[[
   for x,v in pairs(self.map) do
     for y,d in pairs(v) do
       d.trap_triggered = nil
     end
   end
+  --]]
 
 end
 

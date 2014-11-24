@@ -42,7 +42,7 @@ function download:update(dt)
 end
 
 function download:draw()
-  love.graphics.printf("Patient Negative Zero\n\nDownloading ghosts ...",
+  love.graphics.printf(game_name.."\n\nDownloading ghosts ...",
     0,love.graphics.getHeight()/2,love.graphics.getWidth(),"center")
   download.go_for_it = true
 end

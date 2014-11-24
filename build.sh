@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SRC="src"
-NAME="PNZ"
+NAME="PNO"
 VERSION=0.9.1
 
 `sh ./gengit.sh $SRC`
