@@ -1,5 +1,7 @@
 local download = {}
 
+download.wait = 4 -- lol
+
 function download.recording_valid(recording)
   if type(recording)~="table" then return nil end
   local stripped_recording = {}
@@ -32,14 +34,15 @@ function download:get_some()
 end
 
 function download:update(dt)
-  if self.go_for_it then
+  download.wait = download.wait - dt
+  if self.go_for_it and download.wait < 0 then
     download:get_some()
     Gamestate.switch(gamestates.game)
   end
 end
 
 function download:draw()
-  love.graphics.printf("Downloading ghosts ...",
+  love.graphics.printf("Patient Negative Zero\n\nDownloading ghosts ...",
     0,love.graphics.getHeight()/2,love.graphics.getWidth(),"center")
   download.go_for_it = true
 end

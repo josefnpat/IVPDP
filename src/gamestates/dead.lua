@@ -21,10 +21,12 @@ end
 
 function dead:update(dt)
   if self.go_for_it and not self.recording_sent then
-    local response = http.request(
-      ghost_server,
-      "recording="..json.encode(gamestates.game.recording)
-    )
+    if not global_debug_mode_triggered then
+      local response = http.request(
+        ghost_server,
+        "recording="..json.encode(gamestates.game.recording)
+      )
+    end
     self.recording_sent = true
   end
   self.dt = self.dt + dt

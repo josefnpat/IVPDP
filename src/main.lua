@@ -61,6 +61,7 @@ end
 function love.update(dt)
   if dongwrapper.getBind(dong,"debug",1) then
     global_debug_mode = not global_debug_mode
+    global_debug_mode_triggered = true
   end
 end
 
