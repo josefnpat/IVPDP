@@ -15,18 +15,21 @@ function game:enter()
       walking_dt_t = 0.3,
     },
   }
-  for _,recording in pairs(self.recording_pool) do
-    table.insert(self.players,
-      {
-        x = 0,
-        y = 0,
-        angle = 0,
-        direction = 1,
-        walking_dt = 0,
-        walking_dt_t = 0.3,
-        recording = recording,
-        recording_index = 1
-      })
+
+  if self.ghosts >= 1 then
+    for i = 1,self.ghosts do
+      table.insert(self.players,
+        {
+          x = 0,
+          y = 0,
+          angle = 0,
+          direction = 1,
+          walking_dt = 0,
+          walking_dt_t = 0.3,
+          recording = self.recording_pool[math.random(1,#self.recording_pool)],
+          recording_index = 1
+        })
+    end
   end
 
   self.recording = {}
