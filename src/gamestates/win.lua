@@ -1,16 +1,16 @@
-local dead = {}
+local win = {}
 
-function dead:init()
-  self.img = love.graphics.newImage("assets/bg_dead.png")
+function win:init()
+  self.img = love.graphics.newImage("assets/bg_win.png")
 end
 
-function dead:enter()
+function win:enter()
   self.dt = 0
   self.go_for_it = nil
   self.recording_sent = nil
 end
 
-function dead:draw()
+function win:draw()
   love.graphics.draw(self.img)
   love.graphics.printf("You have died, but will not be forgotten.\n"..
     "Have a few souls to help you on your way...\n"..
@@ -19,7 +19,7 @@ function dead:draw()
   self.go_for_it = true
 end
 
-function dead:update(dt)
+function win:update(dt)
   if self.go_for_it and not self.recording_sent then
     local response = http.request(
       ghost_server,
@@ -33,4 +33,4 @@ function dead:update(dt)
   end
 end
 
-return dead
+return win

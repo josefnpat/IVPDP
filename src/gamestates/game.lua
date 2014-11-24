@@ -2,6 +2,8 @@ local game = {}
 
 function game:enter()
 
+  self.ghosts = self.ghosts + 1
+
   self.players = {
     {
       current = true,
@@ -39,6 +41,8 @@ function game:enter()
 end
 
 function game:init()
+
+  self.ghosts = -1
 
   self.recording_pool = gamestates.download.recording_pool
 
@@ -119,8 +123,8 @@ function game:draw()
     love.graphics.rectangle("fill",0,0,love.graphics.getWidth(),love.graphics.getHeight())
   end
   isomaplib.draw()
-  love.graphics.print("fps:"..love.timer.getFPS(),0,0)
   if global_debug_mode then
+    love.graphics.print("fps:"..love.timer.getFPS(),0,0)
     for _,player in pairs(gamestates.game.players) do
       love.graphics.arc(
         "line",love.graphics.getWidth()/2,love.graphics.getHeight()/2,

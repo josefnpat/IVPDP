@@ -10,6 +10,13 @@ music = love.audio.newSource("assets/music.ogg")
 music:setLooping(true)
 music:play()
 
+
+fonts = {
+  title = love.graphics.newFont("assets/fonts/RockSalt.ttf",32)
+}
+
+love.graphics.setFont(fonts.title)
+
 require "libs/json"
 
 dong2lib = require "libs.dong2lib"
