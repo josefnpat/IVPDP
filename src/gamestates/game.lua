@@ -472,6 +472,7 @@ function isomaplib.draw_callback2(x,y,map_data)
   end
 
   if map_data.win then
+    love.graphics.setColor(wat,wat,wat)
     isolib.draw(gamestates.game.door_top,x,y)
   end
 
