@@ -71,14 +71,20 @@ function setBindings(dong)
     function(self,data) return data[1] or data[2] end,
     {
       KEYBMOUSE={args={"return"," "}},
+      PS3={args={"CROSS"}},
+      XBOX_360={args={"A"}},
       XBOX_360_WIRED={args={"A"}},
+      XBOX_360_XINPUT={args={"A"}},
     })
 
   dong:setBind("debug",
     function(self,data) return data[1] and data[2] end,
     {
       KEYBMOUSE={args={"lshift","`"}},
-      XBOX_360_WIRED={args={"LB","RB"}}, 
+      PS3={args={"LB","RB"}},
+      XBOX_360={args={"LB","RB"}},
+      XBOX_360_WIRED={args={"LB","RB"}},
+      XBOX_360_XINPUT={args={"LB","RB"}},
     })
 
   dong:setBind("direction",
@@ -99,7 +105,10 @@ function setBindings(dong)
     end,
     {
       KEYBMOUSE={args={"x","y"},name="Mouse",mouse=true},
+      PS3={args={"LSX","LSY"}},
+      XBOX_360={args={"LSX","LSY"}},
       XBOX_360_WIRED={args={"LSX","LSY"}},
+      XBOX_360_XINPUT={args={"LSX","LSY"}},
     })
 
 end

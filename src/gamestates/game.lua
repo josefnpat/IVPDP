@@ -220,18 +220,17 @@ function game:update(dt)
       if player.walking_dt <= 0 then
         player.walking = nil
       end
-    else
-      if self.map[player.x] and self.map[player.x][player.y] then
-        if self.map[player.x][player.y].trap then
-          self.map[player.x][player.y].trap_triggered = true
-          if not player.walking and player.current and not global_debug_mode then
-            table.insert(self.recording_pool,self.recording)
-            Gamestate.switch(gamestates.dead)
-          end
+    end
+    if self.map[player.x] and self.map[player.x][player.y] then
+      if self.map[player.x][player.y].trap then
+        self.map[player.x][player.y].trap_triggered = true
+        if player.current and not global_debug_mode then
+          table.insert(self.recording_pool,self.recording)
+          Gamestate.switch(gamestates.dead)
         end
-        if self.map[player.x][player.y].win and player.current and not global_debug_mode then
-          Gamestate.switch(gamestates.win)
-        end
+      end
+      if self.map[player.x][player.y].win and player.current and not global_debug_mode then
+        Gamestate.switch(gamestates.win)
       end
     end
   end
