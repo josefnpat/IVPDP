@@ -48,6 +48,10 @@ end
 
 function game:init()
 
+  music = love.audio.newSource("assets/music.ogg")
+  music:setLooping(true)
+  music:play()
+
   self.ghosts = -1
 
   self.recording_pool = gamestates.download.recording_pool

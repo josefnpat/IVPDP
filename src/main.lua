@@ -5,12 +5,6 @@ Gamestate = require "libs.gamestate"
 
 ghost_server = "http://50.116.63.25/public/IVPDP/api.php?api=1"
 
-music = love.audio.newSource("assets/music.ogg")
-
-music:setLooping(true)
-music:play()
-
-
 fonts = {
   title = love.graphics.newFont("assets/fonts/RockSalt.ttf",32)
 }
