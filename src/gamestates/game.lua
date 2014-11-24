@@ -163,7 +163,7 @@ function game:update(dt)
           player.recording_index = player.recording_index + 1
         end
       else
-        player._remove = true
+        player.dead = true
       end
     end
 
@@ -343,6 +343,8 @@ function isomaplib.draw_callback2(x,y,map_data)
 
       if player.current then
         love.graphics.setColor(255,255,255)
+      elseif player.dead then
+        love.graphics.setColor(217,0,0,127)
       else
         love.graphics.setColor(80,173,255,127)
       end
