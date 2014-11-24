@@ -33,6 +33,7 @@ gamestates = {
   download = require "gamestates.download",
   game = require "gamestates.game",
   dead = require "gamestates.dead",
+  win = require "gamestates.win",
 }
 
 function love.load()

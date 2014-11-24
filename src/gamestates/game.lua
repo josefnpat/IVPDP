@@ -105,13 +105,15 @@ function game:init()
     love.graphics.newImage('assets/fab2.png'),
     love.graphics.newImage('assets/fab3.png'),
     love.graphics.newImage('assets/fab4.png'),
+    love.graphics.newImage('assets/monster.png'),
   }
 
   self.traps = {
     love.graphics.newImage("assets/trap.png"),
     love.graphics.newImage("assets/spikes.png"),
   }
-  self.monster = love.graphics.newImage("assets/monster.png")
+  self.door_bottom = self.img
+  self.door_top = love.graphics.newImage("assets/door.png")
 
   isomaplib.set_scale(1)
   isomaplib.debug = false
@@ -216,12 +218,16 @@ function game:update(dt)
         player.walking = nil
       end
     else
-      if self.map[player.x] and self.map[player.x][player.y] and
-        self.map[player.x][player.y].trap then
-        self.map[player.x][player.y].trap_triggered = true
-        if player.current and not global_debug_mode then
-          table.insert(self.recording_pool,self.recording)
-          Gamestate.switch(gamestates.dead)
+      if self.map[player.x] and self.map[player.x][player.y] then
+        if self.map[player.x][player.y].trap then
+          self.map[player.x][player.y].trap_triggered = true
+          if not player.walking and player.current and not global_debug_mode then
+            table.insert(self.recording_pool,self.recording)
+            Gamestate.switch(gamestates.dead)
+          end
+        end
+        if self.map[player.x][player.y].win and player.current and not global_debug_mode then
+          Gamestate.switch(gamestates.win)
         end
       end
     end
@@ -272,12 +278,9 @@ function game:update(dt)
         self.map[mapx][mapy].img = 2
       elseif love.keyboard.isDown("e") then
         -- monster
-        self.map[mapx][mapy].monster = true
-        self.map[mapx][mapy].direction = math.random(1,2)
+        self.map[mapx][mapy].win = true
       end
-
     end
-
   end
 end
 
@@ -465,6 +468,9 @@ function isomaplib.draw_callback2(x,y,map_data)
     isolib.draw(wall,x,y)
   end
 
+  if map_data.win then
+    isolib.draw(gamestates.game.door_top,x,y)
+  end
 
 end
 
