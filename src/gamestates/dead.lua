@@ -13,8 +13,8 @@ end
 function dead:draw()
   love.graphics.draw(self.img)
   love.graphics.printf("You have died, but will not be forgotten.\n"..
-    "Have a few souls to help you on your way...\n"..
-    "Soul Count: "..(gamestates.game.ghosts+1),
+    "A few souls rise to help you on your way...\n"..
+    "Soul Count: "..(gamestates.game.ghosts+1).."\n\nFind the exit ...",
     0,love.graphics.getHeight()/4,love.graphics.getWidth(),"center")
   self.go_for_it = true
 end
