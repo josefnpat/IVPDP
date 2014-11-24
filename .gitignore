@@ -1,3 +1,4 @@
 src/git.lua
 ._temp.love
 *.swp
+.zip
